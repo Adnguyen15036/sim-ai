@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils'
 import Controls from '@/app/workspace/[workspaceId]/logs/components/dashboard/controls'
 import { AutocompleteSearch } from '@/app/workspace/[workspaceId]/logs/components/search/search'
 import { Sidebar } from '@/app/workspace/[workspaceId]/logs/components/sidebar/sidebar'
-import ExecutionsDashboard from '@/app/workspace/[workspaceId]/logs/executions-dashboard'
-import { formatDate } from '@/app/workspace/[workspaceId]/logs/utils/format-date'
+import Dashboard from '@/app/workspace/[workspaceId]/logs/dashboard'
+import { formatDate } from '@/app/workspace/[workspaceId]/logs/utils'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useFolderStore } from '@/stores/folders/store'
 import { useFilterStore } from '@/stores/logs/filters/store'
@@ -480,6 +480,13 @@ export default function Logs() {
     document.body.appendChild(a)
     a.click()
     a.remove()
+    window.parent.postMessage(
+      {
+        type: 'DOWNLOAD_LOGS',
+        payload: { url, filename: 'logs_export.csv' },
+      },
+      '*'
+    )
   }
 
   useEffect(() => {
@@ -680,7 +687,7 @@ export default function Logs() {
 
   // If in dashboard mode, show the dashboard
   if (viewMode === 'dashboard') {
-    return <ExecutionsDashboard />
+    return <Dashboard />
   }
 
   return (

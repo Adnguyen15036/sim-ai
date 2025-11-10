@@ -152,7 +152,13 @@ import {
 import { qdrantFetchTool, qdrantSearchTool, qdrantUpsertTool } from '@/tools/qdrant'
 import { redditGetCommentsTool, redditGetPostsTool, redditHotPostsTool } from '@/tools/reddit'
 import { mailSendTool } from '@/tools/resend'
-import { s3GetObjectTool } from '@/tools/s3'
+import {
+  s3CopyObjectTool,
+  s3DeleteObjectTool,
+  s3GetObjectTool,
+  s3ListObjectsTool,
+  s3PutObjectTool,
+} from '@/tools/s3'
 import { searchTool as serperSearch } from '@/tools/serper'
 import {
   sharepointAddListItemTool,
@@ -162,6 +168,7 @@ import {
   sharepointListSitesTool,
   sharepointReadPageTool,
   sharepointUpdateListItemTool,
+  sharepointUploadFileTool,
 } from '@/tools/sharepoint'
 import { slackCanvasTool, slackMessageReaderTool, slackMessageTool } from '@/tools/slack'
 import { smsSendTool } from '@/tools/sms'
@@ -173,6 +180,7 @@ import {
   supabaseQueryTool,
   supabaseUpdateTool,
   supabaseUpsertTool,
+  supabaseVectorSearchTool,
 } from '@/tools/supabase'
 import { tavilyExtractTool, tavilySearchTool } from '@/tools/tavily'
 import {
@@ -180,6 +188,7 @@ import {
   telegramMessageTool,
   telegramSendAnimationTool,
   telegramSendAudioTool,
+  telegramSendDocumentTool,
   telegramSendPhotoTool,
   telegramSendVideoTool,
 } from '@/tools/telegram'
@@ -188,6 +197,7 @@ import { sendSMSTool } from '@/tools/twilio'
 import { typeformFilesTool, typeformInsightsTool, typeformResponsesTool } from '@/tools/typeform'
 import type { ToolConfig } from '@/tools/types'
 import { visionTool } from '@/tools/vision'
+import { vyinChatResponseTool, vyinBotAssistantTool } from '@/tools/vyin'
 import {
   wealthboxReadContactTool,
   wealthboxReadNoteTool,
@@ -196,6 +206,13 @@ import {
   wealthboxWriteNoteTool,
   wealthboxWriteTaskTool,
 } from '@/tools/wealthbox'
+import {
+  webflowCreateItemTool,
+  webflowDeleteItemTool,
+  webflowGetItemTool,
+  webflowListItemsTool,
+  webflowUpdateItemTool,
+} from '@/tools/webflow'
 import { whatsappSendMessageTool } from '@/tools/whatsapp'
 import {
   wikipediaPageContentTool,
@@ -263,6 +280,7 @@ export const tools: Record<string, ToolConfig> = {
   supabase_update: supabaseUpdateTool,
   supabase_delete: supabaseDeleteTool,
   supabase_upsert: supabaseUpsertTool,
+  supabase_vector_search: supabaseVectorSearchTool,
   typeform_responses: typeformResponsesTool,
   typeform_files: typeformFilesTool,
   typeform_insights: typeformInsightsTool,
@@ -362,12 +380,17 @@ export const tools: Record<string, ToolConfig> = {
   knowledge_create_document: knowledgeCreateDocumentTool,
   elevenlabs_tts: elevenLabsTtsTool,
   s3_get_object: s3GetObjectTool,
+  s3_put_object: s3PutObjectTool,
+  s3_list_objects: s3ListObjectsTool,
+  s3_delete_object: s3DeleteObjectTool,
+  s3_copy_object: s3CopyObjectTool,
   telegram_message: telegramMessageTool,
   telegram_delete_message: telegramDeleteMessageTool,
   telegram_send_audio: telegramSendAudioTool,
   telegram_send_animation: telegramSendAnimationTool,
   telegram_send_photo: telegramSendPhotoTool,
   telegram_send_video: telegramSendVideoTool,
+  telegram_send_document: telegramSendDocumentTool,
   clay_populate: clayPopulateTool,
   discord_send_message: discordSendMessageTool,
   discord_get_messages: discordGetMessagesTool,
@@ -405,6 +428,11 @@ export const tools: Record<string, ToolConfig> = {
   wealthbox_write_task: wealthboxWriteTaskTool,
   wealthbox_read_note: wealthboxReadNoteTool,
   wealthbox_write_note: wealthboxWriteNoteTool,
+  webflow_list_items: webflowListItemsTool,
+  webflow_get_item: webflowGetItemTool,
+  webflow_create_item: webflowCreateItemTool,
+  webflow_update_item: webflowUpdateItemTool,
+  webflow_delete_item: webflowDeleteItemTool,
   wikipedia_summary: wikipediaPageSummaryTool,
   wikipedia_search: wikipediaSearchTool,
   wikipedia_content: wikipediaPageContentTool,
@@ -432,6 +460,7 @@ export const tools: Record<string, ToolConfig> = {
   sharepoint_create_list: sharepointCreateListTool,
   sharepoint_update_list: sharepointUpdateListItemTool,
   sharepoint_add_list_items: sharepointAddListItemTool,
-  // Provider chat tools
-  // Provider chat tools - handled separately in agent blocks
+  sharepoint_upload_file: sharepointUploadFileTool,
+  vyin_bot_assistant: vyinBotAssistantTool,
+  vyin_chat_response: vyinChatResponseTool,
 }

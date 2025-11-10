@@ -50,7 +50,6 @@ import {
 import { useFolderStore } from '@/stores/folders/store'
 import { useOperationQueueStore } from '@/stores/operation-queue/store'
 import { usePanelStore } from '@/stores/panel/store'
-import { useGeneralStore } from '@/stores/settings/general/store'
 import { useSubscriptionStore } from '@/stores/subscription/store'
 import { useWorkflowRegistry } from '@/stores/workflows/registry/store'
 import { useSubBlockStore } from '@/stores/workflows/subblock/store'
@@ -104,7 +103,6 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
   const userPermissions = useUserPermissionsContext()
 
   // Debug mode state
-  const { isDebugModeEnabled, toggleDebugMode } = useGeneralStore()
   const { isDebugging, pendingBlocks, handleStepDebug, handleCancelDebug, handleResumeDebug } =
     useWorkflowExecution()
 
@@ -141,6 +139,8 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
     currentUsage: number
     limit: number
   } | null>(null)
+
+  const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
 
   // Helper function to open console panel
   const openConsolePanel = useCallback(() => {
@@ -874,9 +874,6 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
       }
 
       // Start debugging
-      if (!isDebugModeEnabled) {
-        toggleDebugMode()
-      }
       if (usageExceeded) {
         openSubscriptionSettings()
       } else {
@@ -887,11 +884,9 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
   }, [
     userPermissions.canRead,
     isDebugging,
-    isDebugModeEnabled,
     usageExceeded,
     blocks,
     handleCancelDebug,
-    toggleDebugMode,
     handleRunWorkflow,
     openConsolePanel,
   ])
@@ -906,7 +901,7 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
     const debugButtonClass = cn(
       'h-12 w-12 rounded-[11px] font-medium',
       'bg-[var(--brand-primary-hex)] hover:bg-[var(--brand-primary-hover-hex)]',
-      'shadow-[0_0_0_0_var(--brand-primary-hex)] hover:shadow-[0_0_0_4px_rgba(127,47,255,0.15)]]',
+      'shadow-[0_0_0_0_var(--brand-primary-hex)] hover:shadow-[0_0_0_4px_var(--brand-primary-hex-a10)]]',
       'text-white transition-all duration-200',
       'disabled:opacity-50 disabled:hover:bg-[var(--brand-primary-hex)] disabled:hover:shadow-none'
     )
@@ -1133,7 +1128,7 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
             className={cn(
               'gap-2 font-medium',
               'bg-[var(--brand-primary-hex)] hover:bg-[var(--brand-primary-hover-hex)]',
-              'shadow-[0_0_0_0_var(--brand-primary-hex)] hover:shadow-[0_0_0_4px_rgba(127,47,255,0.15)]',
+              'shadow-[0_0_0_0_var(--brand-primary-hex)] hover:shadow-[0_0_0_4px_var(--brand-primary-hex-a10)]',
               'text-white transition-all duration-200',
               'disabled:opacity-50 disabled:hover:bg-[var(--brand-primary-hex)] disabled:hover:shadow-none',
               'h-12 rounded-[11px] px-4 py-2'
@@ -1255,8 +1250,8 @@ export function ControlBar({ hasValidationErrors = false }: ControlBarProps) {
       {renderToggleButton()}
       {isExpanded && renderWebhookButton()}
       {isExpanded && <ExportControls />}
-      {isExpanded && renderAutoLayoutButton()}
-      {isExpanded && renderPublishButton()}
+      {isExpanded && !isHiddenExtraFeature && renderAutoLayoutButton()}
+      {isExpanded && !isHiddenExtraFeature && renderPublishButton()}
       {renderDeleteButton()}
       {renderDuplicateButton()}
       {!isDebugging && renderDebugModeToggle()}

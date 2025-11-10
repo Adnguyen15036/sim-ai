@@ -1,0 +1,33 @@
+{
+  "name": "gim-embed-sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "browser": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && mkdir -p ../../apps/sim/public/embed && cp dist/index.js ../../apps/sim/public/embed/gim-embed-sdk.js",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "embed",
+    "sdk",
+    "gim",
+    "autoworkflow",
+    "iframe"
+  ],
+  "description": "A TypeScript SDK for embedding GIM AutoFlow workflows into web applications"
+}

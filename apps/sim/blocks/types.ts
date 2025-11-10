@@ -2,7 +2,7 @@ import type { JSX, SVGProps } from 'react'
 import type { ToolResponse } from '@/tools/types'
 
 export type BlockIcon = (props: SVGProps<SVGSVGElement>) => JSX.Element
-export type ParamType = 'string' | 'number' | 'boolean' | 'json'
+export type ParamType = 'string' | 'number' | 'boolean' | 'json' | 'array'
 export type PrimitiveValueType =
   | 'string'
   | 'number'
@@ -63,13 +63,16 @@ export type SubBlockType =
   | 'knowledge-tag-filters' // Multiple tag filters for knowledge bases
   | 'document-selector' // Document selector for knowledge bases
   | 'document-tag-entry' // Document tag entry for creating documents
+  | 'vyin-bot-selector' // Vyin bot selector
   | 'mcp-server-selector' // MCP server selector
   | 'mcp-tool-selector' // MCP tool selector
   | 'mcp-dynamic-args' // MCP dynamic arguments based on tool schema
   | 'input-format' // Input structure format
   | 'response-format' // Response structure format
+  | 'vyin-response-format' // Vyin response structure format
   | 'file-upload' // File uploader
   | 'input-mapping' // Map parent variables to child workflow input schema
+  | 'vyin-intent-router-format' // Intent router format
 
 export type SubBlockLayout = 'full' | 'half'
 

@@ -7,6 +7,7 @@ import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getUserEntityPermissions } from '@/lib/permissions/utils'
 import { decryptSecret, encryptSecret, generateRequestId } from '@/lib/utils'
+import { getSystemManagedUserEnvKeysSet } from '@/lib/system-managed-env'
 
 const logger = createLogger('WorkspaceEnvironmentAPI')
 
@@ -17,6 +18,8 @@ const UpsertSchema = z.object({
 const DeleteSchema = z.object({
   keys: z.array(z.string()).min(1),
 })
+
+const SYSTEM_MANAGED_USER_ENV_KEYS = getSystemManagedUserEnvKeysSet()
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const requestId = generateRequestId()
@@ -75,10 +78,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return out
     }
 
-    const [workspaceDecrypted, personalDecrypted] = await Promise.all([
+    const [workspaceDecryptedRaw, personalDecryptedRaw] = await Promise.all([
       decryptAll(wsEncrypted),
       decryptAll(personalEncrypted),
     ])
+
+    // Exclude any system-managed keys from both views
+    const workspaceDecrypted: Record<string, string> = {}
+    for (const [k, v] of Object.entries(workspaceDecryptedRaw)) {
+      if (!SYSTEM_MANAGED_USER_ENV_KEYS.has(k)) {
+        workspaceDecrypted[k] = v
+      }
+    }
+    const personalDecrypted: Record<string, string> = {}
+    for (const [k, v] of Object.entries(personalDecryptedRaw)) {
+      if (!SYSTEM_MANAGED_USER_ENV_KEYS.has(k)) {
+        personalDecrypted[k] = v
+      }
+    }
 
     const conflicts = Object.keys(personalDecrypted).filter((k) => k in workspaceDecrypted)
 
@@ -130,9 +147,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const existingEncrypted: Record<string, string> = (existingRows[0]?.variables as any) || {}
 
+    // Exclude system-managed keys from upsert
+    const filteredEntries = Object.entries(variables).filter(
+      ([key]) => !SYSTEM_MANAGED_USER_ENV_KEYS.has(key)
+    )
+
     // Encrypt incoming
     const encryptedIncoming = await Promise.all(
-      Object.entries(variables).map(async ([key, value]) => {
+      filteredEntries.map(async ([key, value]) => {
         const { encrypted } = await encryptSecret(value)
         return [key, encrypted] as const
       })
@@ -186,7 +208,10 @@ export async function DELETE(
     }
 
     const body = await request.json()
-    const { keys } = DeleteSchema.parse(body)
+    let { keys } = DeleteSchema.parse(body)
+
+    // Exclude system-managed keys from deletion
+    keys = keys.filter((k) => !SYSTEM_MANAGED_USER_ENV_KEYS.has(k))
 
     const wsRows = await db
       .select()

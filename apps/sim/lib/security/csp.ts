@@ -80,7 +80,7 @@ export const buildTimeCSPDirectives: CSPDirectives = {
     env.OLLAMA_URL || 'http://localhost:11434',
     env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3002',
     env.NEXT_PUBLIC_SOCKET_URL?.replace('http://', 'ws://').replace('https://', 'wss://') ||
-      'ws://localhost:3002',
+    'ws://localhost:3002',
     'https://api.browser-use.com',
     'https://api.exa.ai',
     'https://api.firecrawl.dev',
@@ -97,9 +97,9 @@ export const buildTimeCSPDirectives: CSPDirectives = {
     ...getHostnameFromUrl(env.NEXT_PUBLIC_TERMS_URL),
   ],
 
-  'frame-src': ['https://drive.google.com', 'https://docs.google.com', 'https://*.google.com'],
+  'frame-src': ['https://drive.google.com', 'https://docs.google.com', 'https://*.google.com', "*"],
 
-  'frame-ancestors': ["'self'"],
+  'frame-ancestors': ["self", "*"],
   'form-action': ["'self'"],
   'base-uri': ["'self'"],
   'object-src': ["'none'"],
@@ -155,7 +155,7 @@ export function generateRuntimeCSP(): string {
     media-src 'self' blob:;
     font-src 'self' https://fonts.gstatic.com;
     connect-src 'self' ${appUrl} ${ollamaUrl} ${socketUrl} ${socketWsUrl} https://api.browser-use.com https://api.exa.ai https://api.firecrawl.dev https://*.googleapis.com https://*.amazonaws.com https://*.s3.amazonaws.com https://*.blob.core.windows.net https://api.github.com https://github.com/* https://*.atlassian.com https://*.supabase.co ${dynamicDomainsStr};
-    frame-src https://drive.google.com https://docs.google.com https://*.google.com;
+    frame-src https://drive.google.com https://docs.google.com https://*.google.com *;
     frame-ancestors 'self';
     form-action 'self';
     base-uri 'self';

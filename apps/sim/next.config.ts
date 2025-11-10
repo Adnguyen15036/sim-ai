@@ -36,32 +36,32 @@ const nextConfig: NextConfig = {
       // Brand logo domain if configured
       ...(getEnv('NEXT_PUBLIC_BRAND_LOGO_URL')
         ? (() => {
-            try {
-              return [
-                {
-                  protocol: 'https' as const,
-                  hostname: new URL(getEnv('NEXT_PUBLIC_BRAND_LOGO_URL')!).hostname,
-                },
-              ]
-            } catch {
-              return []
-            }
-          })()
+          try {
+            return [
+              {
+                protocol: 'https' as const,
+                hostname: new URL(getEnv('NEXT_PUBLIC_BRAND_LOGO_URL')!).hostname,
+              },
+            ]
+          } catch {
+            return []
+          }
+        })()
         : []),
       // Brand favicon domain if configured
       ...(getEnv('NEXT_PUBLIC_BRAND_FAVICON_URL')
         ? (() => {
-            try {
-              return [
-                {
-                  protocol: 'https' as const,
-                  hostname: new URL(getEnv('NEXT_PUBLIC_BRAND_FAVICON_URL')!).hostname,
-                },
-              ]
-            } catch {
-              return []
-            }
-          })()
+          try {
+            return [
+              {
+                protocol: 'https' as const,
+                hostname: new URL(getEnv('NEXT_PUBLIC_BRAND_FAVICON_URL')!).hostname,
+              },
+            ]
+          } catch {
+            return []
+          }
+        })()
         : []),
     ],
   },
@@ -79,17 +79,19 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizeCss: true,
     turbopackSourceMaps: false,
+    // Allow importing from outside the app dir in monorepo (Windows Turbopack path fix)
+    externalDir: true,
   },
   ...(isDev && {
     allowedDevOrigins: [
       ...(env.NEXT_PUBLIC_APP_URL
         ? (() => {
-            try {
-              return [new URL(env.NEXT_PUBLIC_APP_URL).host]
-            } catch {
-              return []
-            }
-          })()
+          try {
+            return [new URL(env.NEXT_PUBLIC_APP_URL).host]
+          } catch {
+            return []
+          }
+        })()
         : []),
       'localhost:3000',
       'localhost:3001',
@@ -111,17 +113,17 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           {
-            key: 'Access-Control-Allow-Origin',
-            value: env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001',
-          },
-          {
             key: 'Access-Control-Allow-Methods',
-            value: 'GET,POST,OPTIONS,PUT,DELETE',
+            value: 'GET,POST,OPTIONS,PUT,DELETE,PATCH',
           },
           {
             key: 'Access-Control-Allow-Headers',
             value:
-              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-API-Key',
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-API-Key, Authorization',
+          },
+          {
+            key: 'Access-Control-Max-Age',
+            value: '86400',
           },
         ],
       },
@@ -129,15 +131,20 @@ const nextConfig: NextConfig = {
       {
         source: '/api/workflows/:id/execute',
         headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
           {
             key: 'Access-Control-Allow-Methods',
-            value: 'GET,POST,OPTIONS,PUT',
+            value: 'GET,POST,OPTIONS,PUT,DELETE,PATCH',
           },
           {
             key: 'Access-Control-Allow-Headers',
             value:
-              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-API-Key',
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-API-Key, Authorization',
+          },
+          {
+            key: 'Access-Control-Max-Age',
+            value: '86400',
           },
           { key: 'Cross-Origin-Embedder-Policy', value: 'unsafe-none' },
           { key: 'Cross-Origin-Opener-Policy', value: 'unsafe-none' },
@@ -167,7 +174,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'unsafe-none',
+            value: 'credentialless',
           },
           {
             key: 'Cross-Origin-Opener-Policy',

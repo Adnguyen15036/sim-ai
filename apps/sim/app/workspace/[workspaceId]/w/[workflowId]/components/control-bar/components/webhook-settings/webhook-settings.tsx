@@ -1100,7 +1100,7 @@ export function WebhookSettings({ workflowId, open, onOpenChange }: WebhookSetti
                     newWebhook.triggerFilter.length === 0 ||
                     (!!editingWebhookId && !hasChanges())
                   }
-                  className='h-9 rounded-[8px] bg-[var(--brand-primary-hex)] font-[480] text-white shadow-[0_0_0_0_var(--brand-primary-hex)] transition-all duration-200 hover:bg-[var(--brand-primary-hover-hex)] hover:shadow-[0_0_0_4px_rgba(127,47,255,0.15)] disabled:opacity-50 disabled:hover:shadow-none'
+                  className='h-9 rounded-[8px] bg-[var(--brand-primary-hex)] font-[480] text-white shadow-[0_0_0_0_var(--brand-primary-hex)] transition-all duration-200 hover:bg-[var(--brand-primary-hover-hex)] hover:shadow-[0_0_0_4px_var(--brand-primary-hex-a10)] disabled:opacity-50 disabled:hover:shadow-none'
                 >
                   {isCreating ? (
                     <>{editingWebhookId ? 'Updating...' : 'Creating...'}</>
@@ -1121,7 +1121,7 @@ export function WebhookSettings({ workflowId, open, onOpenChange }: WebhookSetti
                     setSearchTerm('')
                     setShowForm(true)
                   }}
-                  className='h-9 rounded-[8px] bg-[var(--brand-primary-hex)] px-3 font-[480] text-white shadow-[0_0_0_0_var(--brand-primary-hex)] transition-all duration-200 hover:bg-[var(--brand-primary-hover-hex)] hover:shadow-[0_0_0_4px_rgba(127,47,255,0.15)]'
+                  className='h-9 rounded-[8px] bg-[var(--brand-primary-hex)] px-3 font-[480] text-white shadow-[0_0_0_0_var(--brand-primary-hex)] transition-all duration-200 hover:bg-[var(--brand-primary-hover-hex)] hover:shadow-[0_0_0_4px_var(--brand-primary-hex-a10)]'
                 >
                   <Plus className='h-4 w-4 stroke-[2px]' />
                   Add Webhook

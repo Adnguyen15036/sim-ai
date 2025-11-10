@@ -120,15 +120,16 @@
     --base-muted-foreground: #737373;
 
     /* Gradient Colors */
-    --gradient-primary: 263 85% 70%; /* More vibrant purple */
+    --gradient-primary: 263 85% 70%; /* More vibrant blue */
     --gradient-secondary: 336 95% 65%; /* More vibrant pink */
 
     /* Brand Colors (Default Sim Theme) */
-    --brand-primary-hex: #6f3dfa; /* Primary brand purple - matches Get Started gradient start */
-    --brand-primary-hover-hex: #6338d9; /* Primary brand purple hover - matches Get Started hover */
-    --brand-accent-hex: #6f3dfa; /* Accent purple for links - matches sign in button */
-    --brand-accent-hover-hex: #6f3dfa; /* Accent purple hover - matches sign in gradient start */
+    --brand-primary-hex: #0a93ff; /* Primary brand blue - matches Get Started gradient start */
+    --brand-primary-hover-hex: #0a93ff; /* Primary brand blue hover - matches Get Started hover */
+    --brand-accent-hex: #0a93ff; /* Accent blue for links - matches sign in button */
+    --brand-accent-hover-hex: #0a93ff; /* Accent blue hover - matches sign in gradient start */
     --brand-background-hex: #ffffff; /* Primary light background */
+    --brand-primary-hex-a10: rgba(10, 147, 255, 0.1);
 
     /* UI Surface Colors */
     --surface-elevated: #202020; /* Elevated surface background for dark mode */
@@ -190,15 +191,16 @@
     --base-muted-foreground: #a3a3a3;
 
     /* Gradient Colors - Adjusted for dark mode */
-    --gradient-primary: 263 90% 75%; /* More vibrant purple for dark mode */
+    --gradient-primary: 263 90% 75%; /* More vibrant blue for dark mode */
     --gradient-secondary: 336 100% 72%; /* More vibrant pink for dark mode */
 
     /* Brand Colors (Keep dark background for actual dark mode) */
-    --brand-primary-hex: #701ffc; /* Primary brand purple */
-    --brand-primary-hover-hex: #802fff; /* Primary brand purple hover */
-    --brand-accent-hex: #9d54ff; /* Accent purple for links */
-    --brand-accent-hover-hex: #a66fff; /* Accent purple hover */
+    --brand-primary-hex: #0a93ff; /* Primary brand blue - matches Get Started gradient start */
+    --brand-primary-hover-hex: #0a93ff; /* Primary brand blue hover - matches Get Started hover */
+    --brand-accent-hex: #0a93ff; /* Accent blue for links - matches sign in button */
+    --brand-accent-hover-hex: #0a93ff; /* Accent blue hover - matches sign in gradient start */
     --brand-background-hex: #0c0c0c; /* Primary dark background */
+    --brand-primary-hex-a10: rgba(10, 147, 255, 0.1);
 
     /* UI Surface Colors */
     --surface-elevated: #202020; /* Elevated surface background for dark mode */

@@ -54,7 +54,13 @@ ENV DATABASE_URL=${DATABASE_URL}
 ARG NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
-RUN bun run build
+# Build embed SDK and place artifact in Next.js public directory
+RUN cd packages/embed-sdk && \
+    bunx --bun tsc && \
+    mkdir -p ../../apps/sim/public/embed && \
+    cp dist/index.js ../../apps/sim/public/embed/gim-embed-sdk.js
+
+RUN bun run build -- --filter=!docs
 
 # ========================================
 # Runner Stage: Run the actual app
@@ -64,7 +70,7 @@ FROM base AS runner
 WORKDIR /app
 
 # Install Python and dependencies for guardrails PII detection
-RUN apk add --no-cache python3 py3-pip bash
+RUN apk add --no-cache python3 py3-pip bash dos2unix
 
 ENV NODE_ENV=production
 
@@ -81,10 +87,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/sim/lib/guardrails/setup.sh 
 COPY --from=builder --chown=nextjs:nodejs /app/apps/sim/lib/guardrails/requirements.txt ./apps/sim/lib/guardrails/requirements.txt
 COPY --from=builder --chown=nextjs:nodejs /app/apps/sim/lib/guardrails/validate_pii.py ./apps/sim/lib/guardrails/validate_pii.py
 
-# Run guardrails setup as root, then fix ownership of generated venv files
-RUN chmod +x ./apps/sim/lib/guardrails/setup.sh && \
+# Normalize potential CRLF line endings and run guardrails setup as root,
+# then fix ownership of generated venv files
+RUN dos2unix ./apps/sim/lib/guardrails/setup.sh ./apps/sim/lib/guardrails/requirements.txt ./apps/sim/lib/guardrails/validate_pii.py && \
+    chmod +x ./apps/sim/lib/guardrails/setup.sh && \
     cd ./apps/sim/lib/guardrails && \
-    ./setup.sh && \
+    bash ./setup.sh && \
     chown -R nextjs:nodejs /app/apps/sim/lib/guardrails
 
 # Create .next/cache directory with correct ownership

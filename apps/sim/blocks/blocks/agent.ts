@@ -5,7 +5,6 @@ import type { BlockConfig } from '@/blocks/types'
 import { AuthMode } from '@/blocks/types'
 import {
   getAllModelProviders,
-  getBaseModelProviders,
   getHostedModels,
   getMaxTemperature,
   getProviderIcon,
@@ -24,7 +23,7 @@ import type { ToolResponse } from '@/tools/types'
 
 const logger = createLogger('AgentBlock')
 
-interface AgentResponse extends ToolResponse {
+export interface AgentResponse extends ToolResponse {
   output: {
     content: string
     model: string
@@ -164,9 +163,9 @@ Create a system prompt appropriately detailed for the request, using clear langu
       required: true,
       options: () => {
         const providersState = useProvidersStore.getState()
+        const baseModels = providersState.providers.base.models
         const ollamaModels = providersState.providers.ollama.models
         const openrouterModels = providersState.providers.openrouter.models
-        const baseModels = Object.keys(getBaseModelProviders())
         const allModels = Array.from(new Set([...baseModels, ...ollamaModels, ...openrouterModels]))
 
         return allModels.map((model) => {

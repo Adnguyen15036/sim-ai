@@ -38,11 +38,13 @@ const SCOPE_DESCRIPTIONS: Record<string, string> = {
   'https://www.googleapis.com/auth/gmail.modify': 'View and manage your email messages',
   // 'https://www.googleapis.com/auth/gmail.readonly': 'View and read your email messages',
   // 'https://www.googleapis.com/auth/drive': 'View and manage your Google Drive files',
+  'https://www.googleapis.com/auth/drive.readonly': 'View and read your Google Drive files',
   'https://www.googleapis.com/auth/drive.file': 'View and manage your Google Drive files',
   // 'https://www.googleapis.com/auth/documents': 'View and manage your Google Docs',
   'https://www.googleapis.com/auth/calendar': 'View and manage your calendar',
   'https://www.googleapis.com/auth/userinfo.email': 'View your email address',
   'https://www.googleapis.com/auth/userinfo.profile': 'View your basic profile info',
+  'https://www.googleapis.com/auth/forms.responses.readonly': 'View responses to your Google Forms',
   'read:page:confluence': 'Read Confluence pages',
   'write:page:confluence': 'Write Confluence pages',
   'read:me': 'Read your profile information',
@@ -115,6 +117,10 @@ const SCOPE_DESCRIPTIONS: Record<string, string> = {
   'users:read': 'View workspace users',
   'files:write': 'Upload files',
   'canvases:write': 'Create canvas documents',
+  'sites:read': 'View your Webflow sites',
+  'sites:write': 'Manage webhooks and site settings',
+  'cms:read': 'View your CMS content',
+  'cms:write': 'Manage your CMS content',
 }
 
 // Convert OAuth scope to user-friendly description

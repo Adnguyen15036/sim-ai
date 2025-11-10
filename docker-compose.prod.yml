@@ -1,6 +1,6 @@
 services:
   simstudio:
-    image: ghcr.io/simstudioai/simstudio:latest
+    image: sim-ai:latest
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -13,13 +13,21 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-simstudio}
       - BETTER_AUTH_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your_auth_secret_here}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-your_encryption_key_here}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-6f7a58af8631a24547591e52772594f28f3a95e2792a216131c468458de52435}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-f31275246d730cef4d1a67d213409be5fb57291995f13a580cd02e5494dc847d}
       - COPILOT_API_KEY=${COPILOT_API_KEY}
       - SIM_AGENT_API_URL=${SIM_AGENT_API_URL}
       - OLLAMA_URL=${OLLAMA_URL:-http://localhost:11434}
       - SOCKET_SERVER_URL=${SOCKET_SERVER_URL:-http://localhost:3002}
       - NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL:-http://localhost:3002}
+      - GOOGLE_CLIENT_ID=904273871819-rvf8gm9ta60cc0up06vsjaqlt7pedd2k.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - GITHUB_CLIENT_ID=Ov23liXLN9glzkwlVyim
+      - GITHUB_CLIENT_SECRET=09e67a757e0604d1c6fd6b8443d07b1abb6e59f0
+      - NEXT_PUBLIC_DOCUMENTATION_URL=http://localhost:3000
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:-e29d4fd9-18bd-473d-8b2f-5f688745c5e8}
+      - GIM_BASE_URL=${GIM_BASE_URL:-https://gate.gim-core.sotatek.works}
+
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +55,12 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-simstudio}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your_auth_secret_here}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-6f7a58af8631a24547591e52772594f28f3a95e2792a216131c468458de52435}
+      - GOOGLE_CLIENT_ID=904273871819-rvf8gm9ta60cc0up06vsjaqlt7pedd2k.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - GITHUB_CLIENT_ID=Ov23liXLN9glzkwlVyim
+      - GITHUB_CLIENT_SECRET=09e67a757e0604d1c6fd6b8443d07b1abb6e59f0
+      - NEXT_PUBLIC_DOCUMENTATION_URL=http://localhost:3000
     depends_on:
       db:
         condition: service_healthy
@@ -59,7 +72,7 @@ services:
       start_period: 10s
 
   migrations:
-    image: ghcr.io/simstudioai/migrations:latest
+    image: migrations:latest
     working_dir: /app/packages/db
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-simstudio}

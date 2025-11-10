@@ -16,6 +16,9 @@ import {
   ResponseBlockHandler,
   RouterBlockHandler,
   TriggerBlockHandler,
+  VyinBotAssistantBlockHandler,
+  VyinChatResponseBlockHandler,
+  VyinIntentRouterBlockHandler,
   WorkflowBlockHandler,
 } from '@/executor/handlers'
 import { LoopManager } from '@/executor/loops/loops'
@@ -36,7 +39,6 @@ import { VirtualBlockUtils } from '@/executor/utils/virtual-blocks'
 import type { SerializedBlock, SerializedWorkflow } from '@/serializer/types'
 import { useExecutionStore } from '@/stores/execution/store'
 import { useConsoleStore } from '@/stores/panel/console/store'
-import { useGeneralStore } from '@/stores/settings/general/store'
 
 const logger = createLogger('Executor')
 
@@ -206,10 +208,14 @@ export class Executor {
       new TriggerBlockHandler(),
       new AgentBlockHandler(),
       new RouterBlockHandler(this.pathTracker),
+      new VyinIntentRouterBlockHandler(this.pathTracker),
       new ConditionBlockHandler(this.pathTracker, this.resolver),
       new EvaluatorBlockHandler(),
       new FunctionBlockHandler(),
       new ApiBlockHandler(),
+      // Custom handlers before generic
+      new VyinChatResponseBlockHandler(),
+      new VyinBotAssistantBlockHandler(),
       new LoopBlockHandler(this.resolver, this.pathTracker),
       new ParallelBlockHandler(this.resolver, this.pathTracker),
       new ResponseBlockHandler(),
@@ -217,7 +223,7 @@ export class Executor {
       new GenericBlockHandler(),
     ]
 
-    this.isDebugging = useGeneralStore.getState().isDebugModeEnabled
+    this.isDebugging = useExecutionStore.getState().isDebugging
   }
 
   /**
@@ -798,6 +804,7 @@ export class Executor {
               block.metadata?.id === 'input_trigger' ||
               block.metadata?.id === 'api_trigger' ||
               block.metadata?.id === 'chat_trigger' ||
+              block.metadata?.id === 'vyin_chatbot' ||
               block.metadata?.category === 'triggers' ||
               block.config?.params?.triggerMode === true
           )
@@ -941,6 +948,20 @@ export class Executor {
             if (this.workflowInput?.files && Array.isArray(this.workflowInput.files)) {
               starterOutput.files = this.workflowInput.files
             }
+          } else if (initBlock.metadata?.id === 'vyin_chatbot') {
+            starterOutput = {
+              content: this.workflowInput?.content || '',
+              api_token: this.workflowInput?.api_token || '',
+              sender_id: this.workflowInput?.sender_id || '',
+              app_id: this.workflowInput?.app_id || '',
+              channel_url: this.workflowInput?.channel_url || '',
+              bot_user_id: this.workflowInput?.bot_user_id || '',
+              bot_uid: this.workflowInput?.bot_uid || '',
+              bot_nickname: this.workflowInput?.bot_nickname || '',
+              bot_profile_url: this.workflowInput?.bot_profile_url || '',
+              bot_character: this.workflowInput?.bot_character || '',
+              bot_metadata: this.workflowInput?.bot_metadata || {},
+            }
           } else if (
             initBlock.metadata?.id === 'api_trigger' ||
             initBlock.metadata?.id === 'input_trigger'
@@ -979,6 +1000,28 @@ export class Executor {
                 // Add files if present
                 if (this.workflowInput.files && Array.isArray(this.workflowInput.files)) {
                   starterOutput.files = this.workflowInput.files
+                }
+              } else if (
+                // check for vyin_chatbot
+                Object.hasOwn(this.workflowInput, 'content') &&
+                Object.hasOwn(this.workflowInput, 'api_token') &&
+                Object.hasOwn(this.workflowInput, 'app_id') &&
+                Object.hasOwn(this.workflowInput, 'channel_url') &&
+                Object.hasOwn(this.workflowInput, 'bot_user_id') &&
+                Object.hasOwn(this.workflowInput, 'bot_uid')
+              ) {
+                starterOutput = {
+                  content: this.workflowInput.content,
+                  api_token: this.workflowInput.api_token,
+                  sender_id: this.workflowInput.sender_id,
+                  app_id: this.workflowInput.app_id,
+                  channel_url: this.workflowInput.channel_url,
+                  bot_user_id: this.workflowInput.bot_user_id || '',
+                  bot_uid: this.workflowInput.bot_uid || '',
+                  bot_nickname: this.workflowInput.bot_nickname || '',
+                  bot_profile_url: this.workflowInput.bot_profile_url || '',
+                  bot_character: this.workflowInput.bot_character || '',
+                  bot_metadata: this.workflowInput.bot_metadata || {},
                 }
               } else {
                 // API workflow: spread the raw data directly (no wrapping)
@@ -1620,8 +1663,11 @@ export class Executor {
         }
       }
 
-      // For router blocks, check if this is the selected target
-      if (sourceBlock?.metadata?.id === BlockType.ROUTER) {
+      // For router blocks (including intent router), check if this is the selected target
+      if (
+        sourceBlock?.metadata?.id === BlockType.ROUTER ||
+        sourceBlock?.metadata?.id === BlockType.VYIN_INTENT_ROUTER
+      ) {
         const selectedTarget = context.decisions.router.get(conn.source)
 
         // If source is executed and this is not the selected target, dependency is NOT met
@@ -1850,6 +1896,7 @@ export class Executor {
       if (!handler) {
         throw new Error(`No handler found for block type: ${block.metadata?.id}`)
       }
+      logger.error(`Handler found for block type: ${block}`)
 
       // Execute the block
       const startTime = performance.now()

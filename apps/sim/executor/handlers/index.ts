@@ -9,6 +9,9 @@ import { ParallelBlockHandler } from '@/executor/handlers/parallel/parallel-hand
 import { ResponseBlockHandler } from '@/executor/handlers/response/response-handler'
 import { RouterBlockHandler } from '@/executor/handlers/router/router-handler'
 import { TriggerBlockHandler } from '@/executor/handlers/trigger/trigger-handler'
+import { VyinBotAssistantBlockHandler } from '@/executor/handlers/vyin/vyin-bot-assistant-handler'
+import { VyinChatResponseBlockHandler } from '@/executor/handlers/vyin/vyin-chat-response-handler'
+import { VyinIntentRouterBlockHandler } from '@/executor/handlers/vyin/vyin-intent-router-handler'
 import { WorkflowBlockHandler } from '@/executor/handlers/workflow/workflow-handler'
 
 export {
@@ -24,4 +27,7 @@ export {
   RouterBlockHandler,
   TriggerBlockHandler,
   WorkflowBlockHandler,
+  VyinChatResponseBlockHandler,
+  VyinBotAssistantBlockHandler,
+  VyinIntentRouterBlockHandler,
 }

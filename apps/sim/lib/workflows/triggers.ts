@@ -10,6 +10,7 @@ export const TRIGGER_TYPES = {
   API: 'api_trigger',
   WEBHOOK: 'webhook',
   SCHEDULE: 'schedule',
+  VYIN_CHATBOT: 'vyin_chatbot',
   STARTER: 'starter', // Legacy
 } as const
 
@@ -106,8 +107,8 @@ export class TriggerUtils {
       // Child workflows (workflow-in-workflow) only work with input_trigger
       return block.type === TRIGGER_TYPES.INPUT
     }
-    // Direct API calls only work with api_trigger
-    if (block.type === TRIGGER_TYPES.API) {
+    // Direct API calls work with api_trigger and vyin_chatbot
+    if (block.type === TRIGGER_TYPES.API || block.type === TRIGGER_TYPES.VYIN_CHATBOT) {
       return true
     }
 
@@ -227,7 +228,8 @@ export class TriggerUtils {
       triggerType === TRIGGER_TYPES.API ||
       triggerType === TRIGGER_TYPES.INPUT ||
       triggerType === TRIGGER_TYPES.MANUAL ||
-      triggerType === TRIGGER_TYPES.CHAT
+      triggerType === TRIGGER_TYPES.CHAT ||
+      triggerType === TRIGGER_TYPES.VYIN_CHATBOT
     )
   }
 
@@ -249,13 +251,14 @@ export class TriggerUtils {
     const blockArray = Array.isArray(blocks) ? blocks : Object.values(blocks)
     const hasLegacyStarter = TriggerUtils.hasLegacyStarter(blocks)
 
-    // Legacy starter block can't coexist with Chat, Input, Manual, or API triggers
+    // Legacy starter block can't coexist with Chat, Input, Manual, API, or Vyin Chatbot triggers
     if (hasLegacyStarter) {
       if (
         triggerType === TRIGGER_TYPES.CHAT ||
         triggerType === TRIGGER_TYPES.INPUT ||
         triggerType === TRIGGER_TYPES.MANUAL ||
-        triggerType === TRIGGER_TYPES.API
+        triggerType === TRIGGER_TYPES.API ||
+        triggerType === TRIGGER_TYPES.VYIN_CHATBOT
       ) {
         return true
       }
@@ -267,7 +270,8 @@ export class TriggerUtils {
           block.type === TRIGGER_TYPES.CHAT ||
           block.type === TRIGGER_TYPES.INPUT ||
           block.type === TRIGGER_TYPES.MANUAL ||
-          block.type === TRIGGER_TYPES.API
+          block.type === TRIGGER_TYPES.API ||
+          block.type === TRIGGER_TYPES.VYIN_CHATBOT
       )
       if (hasModernTriggers) {
         return true
@@ -292,6 +296,11 @@ export class TriggerUtils {
     // Chat trigger must be unique
     if (triggerType === TRIGGER_TYPES.CHAT) {
       return blockArray.some((block) => block.type === TRIGGER_TYPES.CHAT)
+    }
+
+    // Vyin Chatbot trigger must be unique
+    if (triggerType === TRIGGER_TYPES.VYIN_CHATBOT) {
+      return blockArray.some((block) => block.type === TRIGGER_TYPES.VYIN_CHATBOT)
     }
 
     // Centralized rule: only API, Input, Chat are single-instance

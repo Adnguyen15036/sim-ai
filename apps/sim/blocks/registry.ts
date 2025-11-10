@@ -1,8 +1,3 @@
-/**
- * Blocks Registry
- *
- */
-
 import { AgentBlock } from '@/blocks/blocks/agent'
 import { AirtableBlock } from '@/blocks/blocks/airtable'
 import { ApiBlock } from '@/blocks/blocks/api'
@@ -35,6 +30,7 @@ import { HuggingFaceBlock } from '@/blocks/blocks/huggingface'
 import { HunterBlock } from '@/blocks/blocks/hunter'
 import { ImageGeneratorBlock } from '@/blocks/blocks/image_generator'
 import { InputTriggerBlock } from '@/blocks/blocks/input_trigger'
+import { VyinIntentRouterBlock } from '@/blocks/blocks/vyin_intent_router'
 import { JinaBlock } from '@/blocks/blocks/jina'
 import { JiraBlock } from '@/blocks/blocks/jira'
 import { KnowledgeBlock } from '@/blocks/blocks/knowledge'
@@ -79,7 +75,9 @@ import { TranslateBlock } from '@/blocks/blocks/translate'
 import { TwilioSMSBlock } from '@/blocks/blocks/twilio'
 import { TypeformBlock } from '@/blocks/blocks/typeform'
 import { VisionBlock } from '@/blocks/blocks/vision'
+import { VyinChatResponse } from '@/blocks/blocks/vyin_chat_response'
 import { WealthboxBlock } from '@/blocks/blocks/wealthbox'
+import { WebflowBlock } from '@/blocks/blocks/webflow'
 import { WebhookBlock } from '@/blocks/blocks/webhook'
 import { WhatsAppBlock } from '@/blocks/blocks/whatsapp'
 import { WikipediaBlock } from '@/blocks/blocks/wikipedia'
@@ -89,6 +87,8 @@ import { XBlock } from '@/blocks/blocks/x'
 import { YouTubeBlock } from '@/blocks/blocks/youtube'
 import { ZepBlock } from '@/blocks/blocks/zep'
 import type { BlockConfig } from '@/blocks/types'
+import { VyinBotAssistantBlock } from './blocks/vyin_bot_assistant'
+import { VyinChatbot } from './blocks/vyin_chatbot'
 
 // Registry of all available blocks, alphabetically sorted
 export const registry: Record<string, BlockConfig> = {
@@ -170,7 +170,12 @@ export const registry: Record<string, BlockConfig> = {
   twilio_sms: TwilioSMSBlock,
   typeform: TypeformBlock,
   vision: VisionBlock,
+  vyin_bot_assistant: VyinBotAssistantBlock,
+  vyin_chatbot: VyinChatbot,
+  vyin_chat_response: VyinChatResponse,
+  vyin_intent_router: VyinIntentRouterBlock,
   wealthbox: WealthboxBlock,
+  webflow: WebflowBlock,
   webhook: WebhookBlock,
   whatsapp: WhatsAppBlock,
   wikipedia: WikipediaBlock,

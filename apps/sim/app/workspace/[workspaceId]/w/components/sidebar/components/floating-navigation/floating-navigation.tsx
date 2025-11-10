@@ -1,4 +1,5 @@
 import { HelpCircle, LibraryBig, ScrollText, Settings, Shapes } from 'lucide-react'
+import { getEnv, isTruthy } from '@/lib/env'
 import { NavigationItem } from '@/app/workspace/[workspaceId]/w/components/sidebar/components/navigation-item/navigation-item'
 import { getKeyboardShortcutText } from '@/app/workspace/[workspaceId]/w/hooks/use-keyboard-shortcuts'
 
@@ -18,6 +19,8 @@ export const FloatingNavigation = ({
   bottom,
 }: FloatingNavigationProps) => {
   // Navigation items with their respective actions
+  const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
+
   const navigationItems = [
     {
       id: 'settings',
@@ -25,12 +28,16 @@ export const FloatingNavigation = ({
       onClick: onShowSettings,
       tooltip: 'Settings',
     },
-    {
-      id: 'help',
-      icon: HelpCircle,
-      onClick: onShowHelp,
-      tooltip: 'Help',
-    },
+    ...(!isHiddenExtraFeature
+      ? [
+          {
+            id: 'help',
+            icon: HelpCircle,
+            onClick: onShowHelp,
+            tooltip: 'Help',
+          },
+        ]
+      : []),
     {
       id: 'logs',
       icon: ScrollText,
@@ -46,13 +53,17 @@ export const FloatingNavigation = ({
       tooltip: 'Knowledge',
       active: pathname === `/workspace/${workspaceId}/knowledge`,
     },
-    {
-      id: 'templates',
-      icon: Shapes,
-      href: `/workspace/${workspaceId}/templates`,
-      tooltip: 'Templates',
-      active: pathname === `/workspace/${workspaceId}/templates`,
-    },
+    ...(!isHiddenExtraFeature
+      ? [
+          {
+            id: 'templates',
+            icon: Shapes,
+            href: `/workspace/${workspaceId}/templates`,
+            tooltip: 'Templates',
+            active: pathname === `/workspace/${workspaceId}/templates`,
+          },
+        ]
+      : []),
   ]
 
   return (

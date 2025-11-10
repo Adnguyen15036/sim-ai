@@ -3,6 +3,7 @@ import {
   Bot,
   CreditCard,
   FileCode,
+  Files,
   Home,
   Key,
   LogIn,
@@ -22,6 +23,7 @@ import { useGeneralStore } from '@/stores/settings/general/store'
 import { useSubscriptionStore } from '@/stores/subscription/store'
 
 const isBillingEnabled = isTruthy(getEnv('NEXT_PUBLIC_BILLING_ENABLED'))
+const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
 
 interface SettingsNavigationProps {
   activeSection: string
@@ -32,6 +34,7 @@ interface SettingsNavigationProps {
       | 'account'
       | 'credentials'
       | 'apikeys'
+      | 'files'
       | 'subscription'
       | 'team'
       | 'sso'
@@ -49,6 +52,7 @@ type NavigationItem = {
     | 'account'
     | 'credentials'
     | 'apikeys'
+    | 'files'
     | 'subscription'
     | 'team'
     | 'sso'
@@ -61,6 +65,7 @@ type NavigationItem = {
   requiresTeam?: boolean
   requiresEnterprise?: boolean
   requiresOwner?: boolean
+  isHide?: boolean
 }
 
 const allNavigationItems: NavigationItem[] = [
@@ -88,21 +93,30 @@ const allNavigationItems: NavigationItem[] = [
     id: 'account',
     label: 'Account',
     icon: User,
+    isHide: isHiddenExtraFeature,
   },
   {
     id: 'apikeys',
     label: 'API Keys',
     icon: Key,
+    isHide: isHiddenExtraFeature,
+  },
+  {
+    id: 'files',
+    label: 'File Uploads',
+    icon: Files,
   },
   {
     id: 'copilot',
     label: 'Copilot',
     icon: Bot,
+    isHide: isHiddenExtraFeature,
   },
   {
     id: 'privacy',
     label: 'Privacy',
     icon: Shield,
+    isHide: isHiddenExtraFeature,
   },
   {
     id: 'subscription',
@@ -163,7 +177,7 @@ export function SettingsNavigation({
   }, [userId, isHosted])
 
   const navigationItems = allNavigationItems.filter((item) => {
-    if (item.hideWhenBillingDisabled && !isBillingEnabled) {
+    if ((item.hideWhenBillingDisabled && !isBillingEnabled) || item.isHide) {
       return false
     }
 
@@ -195,7 +209,7 @@ export function SettingsNavigation({
 
   return (
     <div className='flex h-full flex-col'>
-      <div className='flex-1 px-2 py-4'>
+      <div className='flex-1 overflow-y-auto px-2 py-4'>
         {navigationItems.map((item) => (
           <div key={item.id} className='mb-1'>
             <button
