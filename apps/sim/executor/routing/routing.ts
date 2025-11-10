@@ -83,6 +83,7 @@ export class Routing {
     // Routing blocks
     [BlockType.ROUTER]: BlockCategory.ROUTING_BLOCK,
     [BlockType.CONDITION]: BlockCategory.ROUTING_BLOCK,
+    [BlockType.VYIN_INTENT_ROUTER]: BlockCategory.ROUTING_BLOCK,
 
     // Regular blocks (default category)
     [BlockType.FUNCTION]: BlockCategory.REGULAR_BLOCK,

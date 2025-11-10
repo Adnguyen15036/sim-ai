@@ -7,6 +7,7 @@ import { checkEnvVarTrigger, EnvVarDropdown } from '@/components/ui/env-var-drop
 import { formatDisplayText } from '@/components/ui/formatted-text'
 import { Input } from '@/components/ui/input'
 import { checkTagTrigger, TagDropdown } from '@/components/ui/tag-dropdown'
+import { getEnv, isTruthy } from '@/lib/env'
 import { createLogger } from '@/lib/logs/console/logger'
 import { cn } from '@/lib/utils'
 import { WandPromptBar } from '@/app/workspace/[workspaceId]/w/[workflowId]/components/wand-prompt-bar/wand-prompt-bar'
@@ -45,6 +46,8 @@ export function ShortInput({
   previewValue,
   disabled = false,
 }: ShortInputProps) {
+  const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
+
   // Local state for immediate UI updates during streaming
   const [localContent, setLocalContent] = useState<string>('')
   const [isFocused, setIsFocused] = useState(false)
@@ -287,7 +290,13 @@ export function ShortInput({
 
       // Update all state in a single batch
       Promise.resolve().then(() => {
-        setStoreValue(newValue)
+        // Update value through onChange if provided, otherwise use store
+        if (onChange) {
+          onChange(newValue)
+        } else if (!isPreview) {
+          setStoreValue(newValue)
+        }
+
         setCursorPosition(dropPosition + 1)
         setShowTags(true)
 
@@ -428,7 +437,7 @@ export function ShortInput({
         </div>
 
         {/* Wand Button */}
-        {wandHook && !isPreview && !wandHook.isStreaming && (
+        {wandHook && !isPreview && !wandHook.isStreaming && !isHiddenExtraFeature && (
           <div className='-translate-y-1/2 absolute top-1/2 right-3 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
             <Button
               variant='ghost'

@@ -7,6 +7,7 @@ import { checkEnvVarTrigger, EnvVarDropdown } from '@/components/ui/env-var-drop
 import { formatDisplayText } from '@/components/ui/formatted-text'
 import { checkTagTrigger, TagDropdown } from '@/components/ui/tag-dropdown'
 import { Textarea } from '@/components/ui/textarea'
+import { getEnv, isTruthy } from '@/lib/env'
 import { createLogger } from '@/lib/logs/console/logger'
 import { cn } from '@/lib/utils'
 import { WandPromptBar } from '@/app/workspace/[workspaceId]/w/[workflowId]/components/wand-prompt-bar/wand-prompt-bar'
@@ -54,6 +55,8 @@ export function LongInput({
   const workspaceId = params.workspaceId as string
   // Local state for immediate UI updates during streaming
   const [localContent, setLocalContent] = useState<string>('')
+
+  const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
 
   // Wand functionality (only if wandConfig is enabled) - define early to get streaming state
   const wandHook = config.wandConfig?.enabled
@@ -414,7 +417,7 @@ export function LongInput({
         </div>
 
         {/* Wand Button */}
-        {wandHook && !isPreview && !wandHook.isStreaming && (
+        {wandHook && !isPreview && !wandHook.isStreaming && !isHiddenExtraFeature && (
           <div className='absolute top-2 right-3 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
             <Button
               variant='ghost'

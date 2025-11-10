@@ -20,6 +20,14 @@ services:
       - OLLAMA_URL=${OLLAMA_URL:-http://localhost:11434}
       - SOCKET_SERVER_URL=${SOCKET_SERVER_URL:-http://localhost:3002}
       - NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL:-http://localhost:3002}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-your_secret}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-your_secret}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-your_secret}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-your_secret}
+      - NEXT_PUBLIC_DOCUMENTATION_URL=http://localhost:3000
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:-your_secret}
+      - GIM_BASE_URL=${GIM_BASE_URL:-https://gate.gim-core.sotatek.works}
+
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +55,14 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-simstudio}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your_auth_secret_here}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-6f7a58af8631a24547591e52772594f28f3a95e2792a216131c468458de52435}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-your_secret}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-your_secret}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-your_secret}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-your_secret}
+      - NEXT_PUBLIC_DOCUMENTATION_URL=http://localhost:3000
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:-your_secret}
+      - GIM_BASE_URL=${GIM_BASE_URL:-https://gate.gim-core.sotatek.works
     depends_on:
       db:
         condition: service_healthy

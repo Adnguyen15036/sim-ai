@@ -19,12 +19,24 @@ export const env = createEnv({
     DATABASE_URL:                          z.string().url(),                       // Primary database connection string
     BETTER_AUTH_URL:                       z.string().url(),                       // Base URL for Better Auth service
     BETTER_AUTH_SECRET:                    z.string().min(32),                     // Secret key for Better Auth JWT signing
+    BETTER_AUTH_COOKIE_SECURE:             z.boolean().optional(),                 // Flag to secure Better Auth cookies
+    BETTER_AUTH_COOKIE_SAME_SITE:          z.enum(['lax', 'strict', 'none']).optional(), // Same site for Better Auth cookies
     DISABLE_REGISTRATION:                  z.boolean().optional(),                 // Flag to disable new user registration
     ALLOWED_LOGIN_EMAILS:                  z.string().optional(),                  // Comma-separated list of allowed email addresses for login
     ALLOWED_LOGIN_DOMAINS:                 z.string().optional(),                  // Comma-separated list of allowed email domains for login
     ENCRYPTION_KEY:                        z.string().min(32),                     // Key for encrypting sensitive data
     API_ENCRYPTION_KEY:                    z.string().min(32).optional(),          // Dedicated key for encrypting API keys (optional for OSS)
     INTERNAL_API_SECRET:                   z.string().min(32),                     // Secret for internal API authentication
+    EMBED_APP_SALT:                        z.string().min(16).optional(),          // Salt for deterministic GIM service account password derivation
+
+    // Internal Authentication
+    SUPER_ADMIN_EMAIL:                     z.string().optional(),                  // Super admin email address
+    SUPER_ADMIN_PASSWORD:                  z.string().optional(),                  // Super admin password
+    EMBED_SESSION_ENABLED:                 z.boolean().optional(),                 // Flag to enable embed session authentication
+
+    // Vyin/GIM Integration
+    GIM_BASE_URL:                          z.string().url().optional(),            // Base URL for GIM gateway (e.g., https://gate.gim-core.sotatek.works)
+    SYSTEM_MANAGED_USER_ENV_KEYS:          z.string().optional(),                  // Comma-separated user env keys hidden/preserved (system-managed)
 
     // Copilot
     COPILOT_PROVIDER:                      z.string().optional(),                  // Provider for copilot API calls
@@ -42,12 +54,16 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET:                 z.string().min(1).optional(),           // General Stripe webhook secret
     STRIPE_FREE_PRICE_ID:                  z.string().min(1).optional(),           // Stripe price ID for free tier
     FREE_TIER_COST_LIMIT:                  z.number().optional(),                  // Cost limit for free tier users
+    FREE_STORAGE_LIMIT_GB:                 z.number().optional().default(5),       // Storage limit in GB for free tier users
     STRIPE_PRO_PRICE_ID:                   z.string().min(1).optional(),           // Stripe price ID for pro tier
     PRO_TIER_COST_LIMIT:                   z.number().optional(),                  // Cost limit for pro tier users
+    PRO_STORAGE_LIMIT_GB:                  z.number().optional().default(50),      // Storage limit in GB for pro tier users
     STRIPE_TEAM_PRICE_ID:                  z.string().min(1).optional(),           // Stripe price ID for team tier
     TEAM_TIER_COST_LIMIT:                  z.number().optional(),                  // Cost limit for team tier users
+    TEAM_STORAGE_LIMIT_GB:                 z.number().optional().default(500),     // Storage limit in GB for team tier organizations (pooled)
     STRIPE_ENTERPRISE_PRICE_ID:            z.string().min(1).optional(),           // Stripe price ID for enterprise tier
     ENTERPRISE_TIER_COST_LIMIT:            z.number().optional(),                  // Cost limit for enterprise tier users
+    ENTERPRISE_STORAGE_LIMIT_GB:           z.number().optional().default(500),     // Default storage limit in GB for enterprise tier (can be overridden per org)
     BILLING_ENABLED:                       z.boolean().optional(),                 // Enable billing enforcement and usage tracking
     OVERAGE_THRESHOLD_DOLLARS:             z.number().optional().default(50),      // Dollar threshold for incremental overage billing (default: $50)
 
@@ -75,6 +91,8 @@ export const env = createEnv({
     OLLAMA_URL:                            z.string().url().optional(),            // Ollama local LLM server URL
     ELEVENLABS_API_KEY:                    z.string().min(1).optional(),           // ElevenLabs API key for text-to-speech in deployed chat
     SERPER_API_KEY:                        z.string().min(1).optional(),           // Serper API key for online search
+    EXA_API_KEY:                           z.string().min(1).optional(),           // Exa AI API key for enhanced online search
+    DEEPSEEK_MODELS_ENABLED:               z.boolean().optional().default(false),  // Enable Deepseek models in UI (defaults to false for compliance)
 
     // Azure Configuration - Shared credentials with feature-specific models
     AZURE_OPENAI_ENDPOINT:                 z.string().url().optional(),            // Shared Azure OpenAI service endpoint
@@ -195,6 +213,8 @@ export const env = createEnv({
     SLACK_CLIENT_SECRET:                   z.string().optional(),                  // Slack OAuth client secret
     REDDIT_CLIENT_ID:                      z.string().optional(),                  // Reddit OAuth client ID
     REDDIT_CLIENT_SECRET:                  z.string().optional(),                  // Reddit OAuth client secret
+    WEBFLOW_CLIENT_ID:                     z.string().optional(),                  // Webflow OAuth client ID
+    WEBFLOW_CLIENT_SECRET:                 z.string().optional(),                  // Webflow OAuth client secret
 
     // E2B Remote Code Execution
     E2B_ENABLED:                           z.string().optional(),                  // Enable E2B remote code execution

@@ -168,7 +168,7 @@ export class PathTracker {
 
     switch (category) {
       case 'routing':
-        if (blockType === BlockType.ROUTER) {
+        if (blockType === BlockType.ROUTER || blockType === BlockType.VYIN_INTENT_ROUTER) {
           this.updateRouterPaths(block, context)
         } else {
           this.updateConditionPaths(block, context)

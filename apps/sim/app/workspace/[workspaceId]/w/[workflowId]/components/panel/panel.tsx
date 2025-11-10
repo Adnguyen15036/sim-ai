@@ -1,15 +1,15 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, CircleSlash, History, Plus, X } from 'lucide-react'
+import { ArrowDownToLine, CircleSlash, History, Pencil, Plus, Trash2, X } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { LandingPromptStorage } from '@/lib/browser-storage'
+import { getEnv, isTruthy } from '@/lib/env'
 import { createLogger } from '@/lib/logs/console/logger'
 import { useCopilotStore } from '@/stores/copilot/store'
 import { useChatStore } from '@/stores/panel/chat/store'
@@ -26,6 +26,8 @@ const logger = createLogger('Panel')
 export function Panel() {
   const [chatMessage, setChatMessage] = useState<string>('')
   const [isHistoryDropdownOpen, setIsHistoryDropdownOpen] = useState(false)
+  const [editingChatId, setEditingChatId] = useState<string | null>(null)
+  const [editingChatTitle, setEditingChatTitle] = useState<string>('')
 
   const [isResizing, setIsResizing] = useState(false)
   const [resizeStartX, setResizeStartX] = useState(0)
@@ -48,6 +50,8 @@ export function Panel() {
   const clearChat = useChatStore((state) => state.clearChat)
   const exportChatCSV = useChatStore((state) => state.exportChatCSV)
   const { activeWorkflowId } = useWorkflowRegistry()
+
+  const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
 
   // Copilot store for chat management
   const {
@@ -318,14 +322,16 @@ export function Panel() {
     <>
       {/* Tab Selector - Always visible */}
       <div className='fixed top-[76px] right-4 z-20 flex h-9 w-[308px] items-center gap-1 rounded-[14px] border bg-card px-[2.5px] py-1 shadow-xs'>
-        <button
-          onClick={() => handleTabClick('copilot')}
-          className={`panel-tab-base inline-flex flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-transparent py-1 font-[450] text-sm outline-none transition-colors duration-200 ${
-            isOpen && activeTab === 'copilot' ? 'panel-tab-active' : 'panel-tab-inactive'
-          }`}
-        >
-          Copilot
-        </button>
+        {!isHiddenExtraFeature && (
+          <button
+            onClick={() => handleTabClick('copilot')}
+            className={`panel-tab-base inline-flex flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-transparent py-1 font-[450] text-sm outline-none transition-colors duration-200 ${
+              isOpen && activeTab === 'copilot' ? 'panel-tab-active' : 'panel-tab-inactive'
+            }`}
+          >
+            Copilot
+          </button>
+        )}
         <button
           onClick={() => handleTabClick('console')}
           className={`panel-tab-base inline-flex flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-transparent py-1 font-[450] text-sm outline-none transition-colors duration-200 ${
@@ -334,14 +340,16 @@ export function Panel() {
         >
           Console
         </button>
-        <button
-          onClick={() => handleTabClick('chat')}
-          className={`panel-tab-base inline-flex flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-transparent py-1 font-[450] text-sm outline-none transition-colors duration-200 ${
-            isOpen && activeTab === 'chat' ? 'panel-tab-active' : 'panel-tab-inactive'
-          }`}
-        >
-          Chat
-        </button>
+        {!isHiddenExtraFeature && (
+          <button
+            onClick={() => handleTabClick('chat')}
+            className={`panel-tab-base inline-flex flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-transparent py-1 font-[450] text-sm outline-none transition-colors duration-200 ${
+              isOpen && activeTab === 'chat' ? 'panel-tab-active' : 'panel-tab-inactive'
+            }`}
+          >
+            Chat
+          </button>
+        )}
         <button
           onClick={() => handleTabClick('variables')}
           className={`panel-tab-base inline-flex flex-1 cursor-pointer items-center justify-center rounded-[10px] border border-transparent py-1 font-[450] text-sm outline-none transition-colors duration-200 ${
@@ -432,61 +440,135 @@ export function Panel() {
                     </Tooltip>
                     <DropdownMenuContent
                       align='end'
-                      className='z-[200] w-48 rounded-lg border-[#E5E5E5] bg-[#FFFFFF] shadow-xs dark:border-[#414141] dark:bg-[var(--surface-elevated)]'
+                      className='z-[200] w-96 rounded-lg border bg-background p-2 shadow-lg dark:border-[#414141] dark:bg-[var(--surface-elevated)]'
                       sideOffset={8}
                       side='bottom'
                       avoidCollisions={true}
                       collisionPadding={8}
                     >
                       {isLoadingChats ? (
-                        <ScrollArea className='h-[200px]' hideScrollbar={true}>
+                        <div className='max-h-[280px] overflow-y-auto'>
                           <ChatHistorySkeleton />
-                        </ScrollArea>
+                        </div>
                       ) : groupedChats.length === 0 ? (
-                        <div className='px-3 py-2 text-muted-foreground text-sm'>No chats yet</div>
+                        <div className='px-2 py-6 text-center text-muted-foreground text-sm'>
+                          No chats yet
+                        </div>
                       ) : (
-                        <ScrollArea className='h-[200px]' hideScrollbar={true}>
+                        <div className='max-h-[280px] overflow-y-auto'>
                           {groupedChats.map(([groupName, chats], groupIndex) => (
                             <div key={groupName}>
                               <div
-                                className={`border-[#E5E5E5] border-t px-1 pt-1 pb-0.5 font-normal text-muted-foreground text-xs dark:border-[#414141] ${groupIndex === 0 ? 'border-t-0' : ''}`}
+                                className={`px-2 pt-2 pb-1 font-medium text-muted-foreground text-xs uppercase tracking-wide ${groupIndex === 0 ? 'pt-0' : ''}`}
                               >
                                 {groupName}
                               </div>
-                              <div className='flex flex-col gap-1'>
+                              <div className='flex flex-col gap-0.5'>
                                 {chats.map((chat) => (
                                   <div
                                     key={chat.id}
-                                    onClick={() => {
-                                      // Only call selectChat if it's a different chat
-                                      // This prevents aborting streams when clicking the currently active chat
-                                      if (currentChat?.id !== chat.id) {
-                                        selectChat(chat)
-                                      }
-                                      setIsHistoryDropdownOpen(false)
-                                    }}
-                                    className={`group mx-1 flex h-8 cursor-pointer items-center rounded-lg px-2 py-1.5 text-left transition-colors ${
+                                    className={`group relative flex items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors ${
                                       currentChat?.id === chat.id
-                                        ? 'bg-accent'
-                                        : 'hover:bg-accent/50'
+                                        ? 'bg-accent text-accent-foreground'
+                                        : 'text-foreground hover:bg-accent/50'
                                     }`}
-                                    style={{ width: '176px', maxWidth: '176px' }}
                                   >
-                                    <span
-                                      className={`min-w-0 flex-1 truncate font-medium text-sm ${
-                                        currentChat?.id === chat.id
-                                          ? 'text-foreground'
-                                          : 'text-muted-foreground'
-                                      }`}
-                                    >
-                                      {chat.title || 'Untitled Chat'}
-                                    </span>
+                                    {editingChatId === chat.id ? (
+                                      <input
+                                        type='text'
+                                        value={editingChatTitle}
+                                        onChange={(e) => setEditingChatTitle(e.target.value)}
+                                        onKeyDown={async (e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault()
+                                            const newTitle =
+                                              editingChatTitle.trim() || 'Untitled Chat'
+
+                                            // Update optimistically in store first
+                                            const updatedChats = chats.map((c) =>
+                                              c.id === chat.id ? { ...c, title: newTitle } : c
+                                            )
+                                            useCopilotStore.setState({ chats: updatedChats })
+
+                                            // Exit edit mode immediately
+                                            setEditingChatId(null)
+
+                                            // Save to database in background
+                                            try {
+                                              await fetch('/api/copilot/chat/update-title', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                  chatId: chat.id,
+                                                  title: newTitle,
+                                                }),
+                                              })
+                                            } catch (error) {
+                                              logger.error('Failed to update chat title:', error)
+                                              // Revert on error
+                                              await loadChats(true)
+                                            }
+                                          } else if (e.key === 'Escape') {
+                                            setEditingChatId(null)
+                                          }
+                                        }}
+                                        onBlur={() => setEditingChatId(null)}
+                                        className='min-w-0 flex-1 rounded border-none bg-transparent px-0 text-sm outline-none focus:outline-none'
+                                      />
+                                    ) : (
+                                      <>
+                                        <span
+                                          onClick={() => {
+                                            // Only call selectChat if it's a different chat
+                                            if (currentChat?.id !== chat.id) {
+                                              selectChat(chat)
+                                            }
+                                            setIsHistoryDropdownOpen(false)
+                                          }}
+                                          className='min-w-0 cursor-pointer truncate text-sm'
+                                          style={{ maxWidth: 'calc(100% - 60px)' }}
+                                        >
+                                          {chat.title || 'Untitled Chat'}
+                                        </span>
+                                        <div className='ml-auto flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              setEditingChatId(chat.id)
+                                              setEditingChatTitle(chat.title || 'Untitled Chat')
+                                            }}
+                                            className='flex h-5 w-5 items-center justify-center rounded hover:bg-muted'
+                                          >
+                                            <Pencil className='h-3 w-3 text-muted-foreground' />
+                                          </button>
+                                          <button
+                                            onClick={async (e) => {
+                                              e.stopPropagation()
+
+                                              // Check if deleting current chat
+                                              const isDeletingCurrent = currentChat?.id === chat.id
+
+                                              // Delete the chat (optimistic update happens in store)
+                                              await handleDeleteChat(chat.id)
+
+                                              // If deleted current chat, create new one
+                                              if (isDeletingCurrent) {
+                                                copilotRef.current?.createNewChat()
+                                              }
+                                            }}
+                                            className='flex h-5 w-5 items-center justify-center rounded hover:bg-muted'
+                                          >
+                                            <Trash2 className='h-3 w-3 text-muted-foreground' />
+                                          </button>
+                                        </div>
+                                      </>
+                                    )}
                                   </div>
                                 ))}
                               </div>
                             </div>
                           ))}
-                        </ScrollArea>
+                        </div>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>

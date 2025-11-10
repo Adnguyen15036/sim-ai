@@ -35,6 +35,9 @@ import {
   TimeInput,
   ToolInput,
   TriggerConfig,
+  VyinBotSelector,
+  VyinIntentRouterFormat,
+  VyinResponseFormat,
   WebhookConfig,
 } from '@/app/workspace/[workspaceId]/w/[workflowId]/components/workflow-block/components/sub-block/components'
 import type { SubBlockConfig } from '@/blocks/types'
@@ -225,11 +228,22 @@ export const SubBlock = memo(
               disabled={isDisabled}
             />
           )
+        case 'vyin-bot-selector':
+          return (
+            <VyinBotSelector
+              blockId={blockId}
+              subBlock={config}
+              isPreview={isPreview}
+              previewValue={previewValue}
+              disabled={isDisabled}
+            />
+          )
         case 'tool-input':
           return (
             <ToolInput
               blockId={blockId}
               subBlockId={config.id}
+              isConnecting={isConnecting}
               isPreview={isPreview}
               previewValue={previewValue}
               disabled={allowExpandInPreview ? false : isDisabled}
@@ -255,7 +269,13 @@ export const SubBlock = memo(
               blockId={blockId}
               subBlockId={config.id}
               title={config.title ?? ''}
-              options={config.options as { label: string; id: string; group?: string }[]}
+              options={
+                config.options as {
+                  label: string
+                  id: string
+                  group?: string
+                }[]
+              }
               layout={config.layout}
               isPreview={isPreview}
               subBlockValues={subBlockValues ?? {}}
@@ -306,6 +326,7 @@ export const SubBlock = memo(
               isPreview={isPreview}
               previewValue={previewValue}
               disabled={isDisabled}
+              isWide={isWide}
             />
           )
         case 'webhook-config': {
@@ -471,9 +492,34 @@ export const SubBlock = memo(
             />
           )
         }
+        case 'vyin-intent-router-format': {
+          return (
+            <VyinIntentRouterFormat
+              blockId={blockId}
+              subBlockId={config.id}
+              isPreview={isPreview}
+              previewValue={previewValue}
+              disabled={isDisabled}
+              isConnecting={isConnecting}
+              config={config}
+            />
+          )
+        }
         case 'response-format':
           return (
             <ResponseFormat
+              blockId={blockId}
+              subBlockId={config.id}
+              isPreview={isPreview}
+              previewValue={previewValue}
+              isConnecting={isConnecting}
+              config={config}
+              disabled={isDisabled}
+            />
+          )
+        case 'vyin-response-format':
+          return (
+            <VyinResponseFormat
               blockId={blockId}
               subBlockId={config.id}
               isPreview={isPreview}
@@ -521,6 +567,7 @@ export const SubBlock = memo(
               disabled={isDisabled}
               isPreview={isPreview}
               previewValue={previewValue}
+              isConnecting={isConnecting}
             />
           )
         default:

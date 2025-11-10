@@ -10,6 +10,7 @@ import Editor from 'react-simple-code-editor'
 import { Button } from '@/components/ui/button'
 import { checkEnvVarTrigger, EnvVarDropdown } from '@/components/ui/env-var-dropdown'
 import { checkTagTrigger, TagDropdown } from '@/components/ui/tag-dropdown'
+import { getEnv, isTruthy } from '@/lib/env'
 import { CodeLanguage } from '@/lib/execution/languages'
 import { createLogger } from '@/lib/logs/console/logger'
 import { cn } from '@/lib/utils'
@@ -81,6 +82,8 @@ export function Code({
 }: CodeProps) {
   const params = useParams()
   const workspaceId = params.workspaceId as string
+
+  const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
 
   const aiPromptPlaceholder = useMemo(() => {
     switch (generationType) {
@@ -432,25 +435,29 @@ IMPORTANT FORMATTING RULES:
 
       <div
         className={cn(
-          'group relative min-h-[100px] rounded-md border border-input bg-background font-mono text-sm transition-colors',
-          isConnecting && 'ring-2 ring-blue-500 ring-offset-2'
+          'group relative min-h-[100px] rounded-md bg-background font-mono text-sm transition-colors',
+          isConnecting ? 'ring-2 ring-blue-500' : 'border border-input'
         )}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
         <div className='absolute top-2 right-3 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
-          {wandConfig?.enabled && !isCollapsed && !isAiStreaming && !isPreview && (
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={isPromptVisible ? hidePromptInline : showPromptInline}
-              disabled={isAiLoading || isAiStreaming}
-              aria-label='Generate code with AI'
-              className='h-8 w-8 rounded-full border border-transparent bg-muted/80 text-muted-foreground shadow-sm transition-all duration-200 hover:border-primary/20 hover:bg-muted hover:text-foreground hover:shadow'
-            >
-              <Wand2 className='h-4 w-4' />
-            </Button>
-          )}
+          {wandConfig?.enabled &&
+            !isCollapsed &&
+            !isAiStreaming &&
+            !isPreview &&
+            !isHiddenExtraFeature && (
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={isPromptVisible ? hidePromptInline : showPromptInline}
+                disabled={isAiLoading || isAiStreaming}
+                aria-label='Generate code with AI'
+                className='h-8 w-8 rounded-full border border-transparent bg-muted/80 text-muted-foreground shadow-sm transition-all duration-200 hover:border-primary/20 hover:bg-muted hover:text-foreground hover:shadow'
+              >
+                <Wand2 className='h-4 w-4' />
+              </Button>
+            )}
 
           {showCollapseButton && !isAiStreaming && !isPreview && (
             <Button

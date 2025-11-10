@@ -273,6 +273,17 @@ export const useConsoleStore = create<ConsoleStore>()(
             document.body.removeChild(link)
             URL.revokeObjectURL(url)
           }
+          window.parent.postMessage(
+            {
+              type: 'DOWNLOAD_CONSOLE_DATA',
+              payload: {
+                content: csvContent,
+                filename,
+                mimeType: 'text/csv;charset=utf-8;',
+              },
+            },
+            '*'
+          )
         },
 
         getWorkflowEntries: (workflowId) => {

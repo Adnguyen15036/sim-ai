@@ -14,7 +14,7 @@ import {
   organization,
 } from 'better-auth/plugins'
 import { and, eq } from 'drizzle-orm'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import Stripe from 'stripe'
 import {
   getEmailSubject,
@@ -22,6 +22,7 @@ import {
   renderOTPEmail,
   renderPasswordResetEmail,
 } from '@/components/emails/render-email'
+import { embedCookie, verifyEmbedToken } from '@/lib/auth/embed'
 import { sendPlanWelcomeEmail } from '@/lib/billing'
 import { authorizeSubscriptionReference } from '@/lib/billing/authorization'
 import { handleNewUser } from '@/lib/billing/core/usage'
@@ -64,11 +65,18 @@ export const auth = betterAuth({
   trustedOrigins: [
     getBaseUrl(),
     ...(env.NEXT_PUBLIC_SOCKET_URL ? [env.NEXT_PUBLIC_SOCKET_URL] : []),
+    ...(env.ALLOWED_ORIGINS?.split(',') || []),
   ].filter(Boolean),
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema,
   }),
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: env.BETTER_AUTH_COOKIE_SAME_SITE || 'none',
+    },
+    useSecureCookies: env.BETTER_AUTH_COOKIE_SECURE || true,
+  },
   session: {
     cookieCache: {
       enabled: true,
@@ -152,6 +160,7 @@ export const auth = betterAuth({
         'microsoft',
         'slack',
         'reddit',
+        'webflow',
 
         // Common SSO provider patterns
         ...SSO_TRUSTED_PROVIDERS,
@@ -199,15 +208,25 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path.startsWith('/sign-up') && isTruthy(env.DISABLE_REGISTRATION))
+      if (ctx.path.startsWith('/forget-password'))
+        throw new Error('Password reset is disabled, please contact your admin.')
+
+      if (ctx.path.startsWith('/change-password'))
+        throw new Error('Password change is disabled, please contact your admin.')
+
+      const requestEmail = ctx.body?.email?.toLowerCase()
+
+      if (
+        ctx.path.startsWith('/sign-up') &&
+        isTruthy(env.DISABLE_REGISTRATION) &&
+        requestEmail !== env.SUPER_ADMIN_EMAIL
+      )
         throw new Error('Registration is disabled, please contact your admin.')
 
       if (
         (ctx.path.startsWith('/sign-in') || ctx.path.startsWith('/sign-up')) &&
         (env.ALLOWED_LOGIN_EMAILS || env.ALLOWED_LOGIN_DOMAINS)
       ) {
-        const requestEmail = ctx.body?.email?.toLowerCase()
-
         if (requestEmail) {
           let isAllowed = false
 
@@ -425,6 +444,7 @@ export const auth = betterAuth({
           scopes: [
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/drive.readonly',
             'https://www.googleapis.com/auth/drive.file',
           ],
           prompt: 'consent',
@@ -439,6 +459,7 @@ export const auth = betterAuth({
           scopes: [
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/drive.readonly',
             'https://www.googleapis.com/auth/drive.file',
           ],
           prompt: 'consent',
@@ -453,6 +474,7 @@ export const auth = betterAuth({
           scopes: [
             'https://www.googleapis.com/auth/userinfo.email',
             'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/drive.readonly',
             'https://www.googleapis.com/auth/drive.file',
           ],
           prompt: 'consent',
@@ -947,6 +969,38 @@ export const auth = betterAuth({
           authentication: 'basic',
           prompt: 'consent',
           redirectURI: `${getBaseUrl()}/api/auth/oauth2/callback/airtable`,
+          getUserInfo: async (tokens) => {
+            try {
+              const response = await fetch('https://api.airtable.com/v0/meta/whoami', {
+                headers: {
+                  Authorization: `Bearer ${tokens.accessToken}`,
+                },
+              })
+
+              if (!response.ok) {
+                logger.error('Error fetching Airtable user info:', {
+                  status: response.status,
+                  statusText: response.statusText,
+                })
+                return null
+              }
+
+              const data = await response.json()
+              const now = new Date()
+
+              return {
+                id: data.id,
+                name: data.email ? data.email.split('@')[0] : 'Airtable User',
+                email: data.email || `${data.id}@airtable.user`,
+                emailVerified: !!data.email,
+                createdAt: now,
+                updatedAt: now,
+              }
+            } catch (error) {
+              logger.error('Error in Airtable getUserInfo:', { error })
+              return null
+            }
+          },
         },
 
         // Notion provider
@@ -1178,6 +1232,56 @@ export const auth = betterAuth({
               }
             } catch (error) {
               logger.error('Error creating Slack bot profile:', { error })
+              return null
+            }
+          },
+        },
+
+        // Webflow provider
+        {
+          providerId: 'webflow',
+          clientId: env.WEBFLOW_CLIENT_ID as string,
+          clientSecret: env.WEBFLOW_CLIENT_SECRET as string,
+          authorizationUrl: 'https://webflow.com/oauth/authorize',
+          tokenUrl: 'https://api.webflow.com/oauth/access_token',
+          userInfoUrl: 'https://api.webflow.com/v2/token/introspect',
+          scopes: ['sites:read', 'sites:write', 'cms:read', 'cms:write'],
+          responseType: 'code',
+          redirectURI: `${getBaseUrl()}/api/auth/oauth2/callback/webflow`,
+          getUserInfo: async (tokens) => {
+            try {
+              logger.info('Fetching Webflow user info')
+
+              const response = await fetch('https://api.webflow.com/v2/token/introspect', {
+                headers: {
+                  Authorization: `Bearer ${tokens.accessToken}`,
+                },
+              })
+
+              if (!response.ok) {
+                logger.error('Error fetching Webflow user info:', {
+                  status: response.status,
+                  statusText: response.statusText,
+                })
+                return null
+              }
+
+              const data = await response.json()
+              const now = new Date()
+
+              const userId = data.user_id || `webflow-${Date.now()}`
+              const uniqueId = `webflow-${userId}`
+
+              return {
+                id: uniqueId,
+                name: data.user_name || 'Webflow User',
+                email: `${uniqueId.replace(/[^a-zA-Z0-9]/g, '')}@webflow.user`,
+                emailVerified: false,
+                createdAt: now,
+                updatedAt: now,
+              }
+            } catch (error) {
+              logger.error('Error in Webflow getUserInfo:', { error })
               return null
             }
           },
@@ -1460,9 +1564,27 @@ export const auth = betterAuth({
 
 export async function getSession() {
   const hdrs = await headers()
-  return await auth.api.getSession({
-    headers: hdrs,
-  })
+  const session = await auth.api.getSession({ headers: hdrs })
+
+  // Only process embed cookie if explicitly enabled
+  if (isTruthy(env.EMBED_SESSION_ENABLED)) {
+    const jar = await cookies()
+    const token = jar.get(embedCookie.name)?.value
+    if (!token) {
+      logger.error('no embed token', { token })
+      return null
+    }
+    if (token) {
+      const claims = await verifyEmbedToken(token)
+      if (!claims) {
+        logger.error('no embed claims', { claims })
+        return null
+      }
+      return { ...session, embed: claims }
+    }
+  }
+
+  return session
 }
 
 export const signIn = auth.api.signInEmail

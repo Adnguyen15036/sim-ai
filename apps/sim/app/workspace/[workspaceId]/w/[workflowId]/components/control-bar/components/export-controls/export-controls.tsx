@@ -32,6 +32,17 @@ export function ExportControls({ disabled = false }: ExportControlsProps) {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
+      window.parent.postMessage(
+        {
+          type: 'DOWNLOAD_FILE',
+          payload: {
+            content,
+            filename,
+            mimeType,
+          },
+        },
+        '*'
+      )
     } catch (error) {
       logger.error('Failed to download file:', error)
     }

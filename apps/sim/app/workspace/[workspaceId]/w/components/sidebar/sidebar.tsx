@@ -44,6 +44,8 @@ const SIDEBAR_GAP = 12 // 12px gap between components - easily editable
 
 const isBillingEnabled = isTruthy(getEnv('NEXT_PUBLIC_BILLING_ENABLED'))
 
+const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
+
 // Heights for dynamic calculation (in px)
 const SIDEBAR_HEIGHTS = {
   CONTAINER_PADDING: 32, // p-4 = 16px top + 16px bottom (bottom provides control bar spacing match)
@@ -921,7 +923,7 @@ export function Sidebar() {
           >
             <button
               onClick={() => setShowSearchModal(true)}
-              className='flex h-12 w-full cursor-pointer items-center gap-2 rounded-[10px] border bg-background pr-[10px] pl-3 shadow-xs transition-colors hover:bg-muted/50'
+              className={`flex h-12 w-full cursor-pointer items-center gap-2 rounded-[10px] border bg-background pr-[10px] pl-3 shadow-xs transition-colors hover:bg-muted/50 ${isHiddenExtraFeature ? 'hidden' : ''}`}
             >
               <Search className='h-4 w-4 text-muted-foreground' strokeWidth={2} />
               <span className='flex h-8 flex-1 items-center px-0 text-muted-foreground text-sm leading-none'>
@@ -933,7 +935,7 @@ export function Sidebar() {
 
           {/* 4. Workflow Selector */}
           <div
-            className={`pointer-events-auto relative h-[212px] flex-shrink-0 rounded-[10px] border bg-background shadow-xs ${
+            className={`pointer-events-auto relative h-[212px] flex-shrink-0 rounded-[10px] border bg-background shadow-xs mt-[95px] ${
               isSidebarCollapsed ? 'hidden' : ''
             }`}
           >

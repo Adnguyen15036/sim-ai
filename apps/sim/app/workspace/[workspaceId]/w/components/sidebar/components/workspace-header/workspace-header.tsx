@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useSession } from '@/lib/auth-client'
+import { getEnv, isTruthy } from '@/lib/env'
 
 /**
  * Workspace entity interface
@@ -41,6 +42,7 @@ export const WorkspaceHeader = React.memo<WorkspaceHeaderProps>(
     activeWorkspace,
     isWorkspacesLoading,
   }) => {
+    const isHiddenExtraFeature = isTruthy(getEnv('NEXT_PUBLIC_HIDDEN_EXTRA_FEATURE'))
     // External hooks
     const { data: sessionData } = useSession()
     const [isClientLoading, setIsClientLoading] = useState(true)
@@ -148,7 +150,9 @@ export const WorkspaceHeader = React.memo<WorkspaceHeaderProps>(
 
     // Main render - using h-12 to match control bar height
     return (
-      <div className='h-12 rounded-[10px] border bg-background shadow-xs'>
+      <div
+        className={`h-12 rounded-[10px] border bg-background shadow-xs ${isHiddenExtraFeature ? 'hidden' : ''}`}
+      >
         <div
           className='flex h-full cursor-pointer items-center gap-1 rounded-[10px] pr-[10px] pl-3 transition-colors hover:bg-muted/50'
           onClick={handleHeaderClick}

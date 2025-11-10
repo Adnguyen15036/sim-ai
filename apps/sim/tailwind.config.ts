@@ -56,6 +56,7 @@ export default {
           primary: 'hsl(var(--gradient-primary))',
           secondary: 'hsl(var(--gradient-secondary))',
         },
+        'brand-primary-a10': 'var(--brand-primary-hex-a10)',
       },
       fontWeight: {
         medium: '460',

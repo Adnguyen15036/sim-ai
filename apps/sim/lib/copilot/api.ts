@@ -51,7 +51,7 @@ export interface MessageFileAttachment {
 /**
  * Request interface for sending messages
  */
-export interface SendMessageRequest {
+export interface VyinSendMessageRequest {
   message: string
   userMessageId?: string // ID from frontend for the user message
   chatId?: string
@@ -66,6 +66,7 @@ export interface SendMessageRequest {
     | 'gpt-4.1'
     | 'o3'
     | 'claude-4-sonnet'
+    | 'claude-4.5-haiku'
     | 'claude-4.5-sonnet'
     | 'claude-4.1-opus'
   prefetch?: boolean
@@ -116,7 +117,7 @@ async function handleApiError(response: Response, defaultMessage: string): Promi
  * This is the main API endpoint that handles all chat operations
  */
 export async function sendStreamingMessage(
-  request: SendMessageRequest
+  request: VyinSendMessageRequest
 ): Promise<StreamingResponse> {
   try {
     const { abortSignal, ...requestBody } = request

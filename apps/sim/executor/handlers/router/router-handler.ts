@@ -55,6 +55,14 @@ export class RouterBlockHandler implements BlockHandler {
         workflowId: context.workflowId,
       }
 
+      // Forward Azure-specific configuration when using Azure OpenAI
+      if (providerId === 'azure-openai') {
+        Object.assign(providerRequest, {
+          azureEndpoint: inputs.azureEndpoint,
+          azureApiVersion: inputs.azureApiVersion,
+        })
+      }
+
       const response = await fetch(url.toString(), {
         method: 'POST',
         headers: {
